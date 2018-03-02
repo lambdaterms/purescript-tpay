@@ -1,0 +1,19 @@
+{
+  "name": "purescript-tpay",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "output"
+  ],
+  "dependencies": {
+    "purescript-prelude": "^3.1.1",
+    "purescript-console": "^3.0.0"
+  },
+  "devDependencies": {
+    "purescript-psci-support": "^3.0.0",
+    "purescript-record-show": "^0.4.0",
+    "purescript-debug": "^3.0.0",
+    "purescript-quickserve": "^1.0.0"
+  }
+}
