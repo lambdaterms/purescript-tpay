@@ -13,7 +13,8 @@ type RequestBase r =
   { id :: Int
   , amount :: Number
   , description :: String
-  | r }
+  | r
+  }
 
 type Request = RequestBase ()
 

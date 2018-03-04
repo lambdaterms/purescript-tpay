@@ -17,7 +17,8 @@ type ResponseBase r =
   , trStatus :: Boolean
   , trError :: String
   , trEmail :: String
-  | r } 
+  | r
+  } 
 
 newtype ResponseInternal = ResI (ResponseBase (md5sum :: String))
 
