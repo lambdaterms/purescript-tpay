@@ -19,6 +19,7 @@
     "purescript-psci-support": "^3.0.0",
     "purescript-record-show": "^0.4.0",
     "purescript-debug": "^3.0.0",
-    "purescript-quickserve": "^2.0.0"
+    "purescript-quickserve": "^2.0.0",
+    "purescript-test-unit": "^13.0.0"
   }
 }
