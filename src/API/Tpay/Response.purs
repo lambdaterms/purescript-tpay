@@ -2,9 +2,8 @@ module API.Tpay.Response where
 
 import Prelude
 
-import Data.Foreign (F, Foreign, ForeignError(..), fail, readInt, readNumber, readString)
-import Data.Foreign.Class (class Decode)
-import Data.Foreign.Index ((!))
+import API.Tpay.Validators (Validator, selectField)
+import API.Tpay.Validators as Validators
 
 type ResponseBase r =
   { id :: Int
@@ -18,27 +17,27 @@ type ResponseBase r =
   , trError :: String
   , trEmail :: String
   | r
-  } 
+  }
 
-newtype ResponseInternal = ResI (ResponseBase (md5sum :: String))
+type ResponseInternal = ResponseBase (md5sum :: String)
 
-instance decodeResponseInternal :: Decode ResponseInternal where
-  decode = decodeResponse
+validateResponse :: Validator String { id :: Int, trAmount :: Number, trDesc :: String }
+validateResponse = Validators.response
+  >>> ({ id: _, trAmount: _, trDesc: _ }
+  <$> (selectField "id" >>> Validators.int)
+  <*> (selectField "tr_amount" >>> Validators.number)
+  <*> selectField "tr_desc")
 
-decodeResponse :: Foreign -> F ResponseInternal
-decodeResponse val = do
-  id <- val ! "id" >>= readInt
-  trId <- val ! "tr_id" >>= readString
-  trDate <- val ! "tr_date" >>= readString
-  trCrc <- val ! "tr_crc" >>= readString
-  trAmount <- val ! "tr_amount" >>= readNumber
-  trPaid <- val ! "tr_paid" >>= readNumber
-  trDesc <- val ! "tr_desc" >>= readString
-  trStatus <- val ! "tr_status" >>= readString >>= case _ of
-    "TRUE" -> pure true
-    "FALSE" -> pure false
-    _ -> fail $ ForeignError "expected either TRUE or FALSE"
-  trError <- val ! "tr_error" >>= readString
-  trEmail <- val ! "tr_email" >>= readString
-  md5sum <- val ! "md5sum" >>= readString
-  pure $ ResI { id, trId, trDate, trCrc, trAmount, trPaid, trDesc, trStatus, trError, trEmail, md5sum }
+-- buildResponse =
+--   { id: _
+--   , trId: _
+--   , trDate: _
+--   , trCrc: _
+--   , trAmount: _
+--   , trPaid: _
+--   , trDesc: _
+--   , trStatus: _
+--   , trError: _
+--   , trEmail: _
+--   , md5sum: _
+--   }
