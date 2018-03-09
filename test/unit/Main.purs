@@ -28,7 +28,7 @@ main = runTest $ do
             [ (Tuple "test1" "15")
             , (Tuple "id" "12")
             , (Tuple "description" "asdf")
-            ,(Tuple "amount" "17.1")
+            , (Tuple "amount" "17.1")
             ]
         query = mapShow { id: 12, amount: 17.1, description: "asdf", test1: 15 }
       equal expected query
