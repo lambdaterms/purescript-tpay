@@ -15,10 +15,16 @@ import Test.Unit.Console (TESTOUTPUT)
 import Test.Unit.Main (runTest)
 
 
-main :: forall eff. Eff ( timer :: TIMER
-                        , avar :: AVAR
-                        , console :: CONSOLE
-                        , testOutput :: TESTOUTPUT | eff ) Unit
+main
+  :: forall eff
+  . Eff
+    ( timer :: TIMER
+    , avar :: AVAR
+    , console :: CONSOLE
+    , testOutput :: TESTOUTPUT
+    | eff
+    )
+    Unit
 main = runTest $ do
   suite "API.TPay.MapRow" $ do
     test "serializes simple record with simple types" $ do
