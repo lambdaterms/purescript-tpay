@@ -2,7 +2,7 @@ module API.Tpay.Request where
 
 import Prelude
 
-import API.Tpay.MapRow (class MapShowRow, mapShow)
+import API.Tpay.Serialize (class Serialize, serialize)
 import Control.Monad.Eff (Eff)
 import Data.Foldable (fold)
 import Data.StrMap (StrMap)
@@ -10,7 +10,6 @@ import Data.StrMap as StrMap
 import Node.Buffer (BUFFER)
 import Node.Crypto (CRYPTO)
 import Node.Crypto.Hash as Hash
-import Type.Row (class RowToList)
 
 type RequestBase r =
   ( id :: Int
@@ -34,14 +33,13 @@ class IsProperRequest (r :: # Type)
 instance isProperRequest :: (RowSubset r RequestMax, RowSubset RequestMin r) => IsProperRequest r
 
 prepareRequest
-  :: forall r ls e
+  :: forall r e
   .  IsProperRequest r
-  => MapShowRow ls r
-  => RowToList r ls
+  => Serialize (Record r) String
   => Record r -> Eff (buffer :: BUFFER, crypto :: CRYPTO | e) (StrMap String)
 prepareRequest r = 
   let
-    vals = mapShow r
+    vals = serialize r
     str  = fold <<< StrMap.values $ vals
   in do
     md5 <- Hash.hex Hash.MD5 str

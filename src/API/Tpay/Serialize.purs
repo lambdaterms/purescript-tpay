@@ -1,16 +1,32 @@
-module API.Tpay.Serialize where
+module API.Tpay.Serialize 
+  ( class Serialize
+  , class SerializeRecord
+  , class SerializeValue
+  , serialize
+  , serializeImpl
+  , serializeVal
+  ) where
 
 import Prelude
 
 import Data.Array as Array
-import Data.List (List(..), foldl)
-import Data.Maybe (Maybe(..))
+import Data.Foldable (class Foldable)
 import Data.Record as Record
 import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
-import Data.Tuple (Tuple(..))
 import Type.Row (class RowLacks, class RowToList, Cons, Nil, RLProxy(..), kind RowList)
+
+
+class Serialize a b where
+  serialize :: a -> StrMap b
+
+instance serializeRecord ::
+  ( SerializeRecord proxy row b
+  , RowToList row proxy
+  ) => Serialize (Record row) b where
+  serialize = serializeImpl (RLProxy :: RLProxy proxy)
+
 
 class SerializeRecord (list :: RowList) (rec :: # Type) b | list -> rec where
   serializeImpl :: RLProxy list -> Record rec -> StrMap b
@@ -33,13 +49,15 @@ instance serializeCons ::
 instance serializeNil :: SerializeRecord Nil a b where
   serializeImpl _ _ = StrMap.empty
 
+
 class SerializeValue a b where
   serializeVal :: a -> b
 
 instance serializeValueArray :: 
   ( SerializeValue a b
-  ) => SerializeValue (Array a) (Array b) where
-  serializeVal = map serializeVal
+  , Foldable f
+  ) => SerializeValue (f a) (Array b) where
+  serializeVal = Array.fromFoldable >>> map serializeVal
 
 instance serializeValueInj ::
   ( SerializeValue a b
@@ -53,16 +71,4 @@ instance toStringNumber :: SerializeValue Number String where
   serializeVal = show
 
 instance serializeValueString :: SerializeValue String String where
-  serializeVal x = x 
-
-serialize
-  :: forall row list b
-  .  RowToList row list
-  => SerializeRecord list row b
-  => Record row -> StrMap b
-serialize = serializeImpl (RLProxy :: RLProxy list)
-
-convertToPostArray :: StrMap (Array String) -> Array (Tuple String (Maybe String))
-convertToPostArray m = 
-  let list = StrMap.fold (\a k vals -> foldl (\a v -> Cons (Tuple k (Just v)) a) a vals) Nil m
-  in Array.fromFoldable list
+  serializeVal x = x
