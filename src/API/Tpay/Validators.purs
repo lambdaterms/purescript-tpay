@@ -2,6 +2,7 @@ module API.Tpay.Validators
   ( Validator
   , boolean
   , int
+  , md5
   , number
   , response
   , selectField
@@ -9,10 +10,11 @@ module API.Tpay.Validators
 
 import Prelude
 
+import Control.Monad.Eff (Eff)
+import Data.Array (fold)
 import Data.Array as Array
 import Data.Bifunctor (lmap)
 import Data.Either (Either)
-import Data.Identity (Identity)
 import Data.Int as Int
 import Data.List (List(..))
 import Data.Maybe (Maybe(..))
@@ -23,11 +25,14 @@ import Data.String as String
 import Data.Tuple (Tuple(..))
 import Data.URI (Query(..))
 import Data.URI.Query as Query
-import Polyform.Validation (V(..), Validation(..))
+import Node.Buffer (BUFFER)
+import Node.Crypto (CRYPTO)
+import Node.Crypto.Hash as Hash
+import Polyform.Validation (V(..), Validation(..), runValidation)
 import Polyform.Validation as V
 import Text.Parsing.StringParser (ParseError(..), runParser)
 
-type Validator a b = Validation Identity (Array ParseError) a b
+type Validator m a b = Validation m (Array ParseError) a b
 
 parseError :: forall a. String -> V (Array ParseError) a
 parseError s = Invalid $ Array.singleton $ ParseError s
@@ -35,7 +40,7 @@ parseError s = Invalid $ Array.singleton $ ParseError s
 fromEither :: forall a. Either ParseError a -> V (Array ParseError) a
 fromEither = lmap Array.singleton >>> V.fromEither
 
-response :: Validator String (StrMap String)
+response :: forall m. Monad m => Validator m String (StrMap String)
 response = Validation \s ->
   pure (queryToMap <$> (fromEither $ runParser Query.parser ("?" <> s)))
 
@@ -51,23 +56,32 @@ queryToMap (Query q) =
     StrMap.fromFoldable q'
 
 
-number :: Validator String Number
+number :: forall m. Monad m => Validator m String Number
 number = Validation \s -> pure $ case Number.fromString s of
   Just n -> pure n
   Nothing -> parseError $ "Could not parse " <> s <> " as number"
 
-int :: Validator String Int
+int :: forall m. Monad m => Validator m String Int
 int = Validation \s -> pure $ case Int.fromString s of
   Just n -> pure n
   Nothing -> parseError $ "Could not parse " <> s <> " as int"
 
-boolean :: Validator String Boolean
+boolean :: forall m. Monad m => Validator m String Boolean
 boolean = Validation \s -> pure $ case String.toLower s of
   "false" -> pure false
   "true" -> pure true
   _ -> parseError $ "Could not parse " <> s <> " as boolean"
 
-selectField :: String -> Validator (StrMap String) String
+selectField :: forall m. Monad m => String -> Validator m (StrMap String) String
 selectField f = Validation \q -> pure $ case StrMap.lookup f q of
   Just s -> pure s
   Nothing -> parseError $ "Could not find field " <> f
+
+md5 :: forall e
+  . String
+  -> Validator (Eff (buffer :: BUFFER, crypto :: CRYPTO | e)) (StrMap String) (StrMap String)
+md5 lbl = (Validation (\m -> map (map (Tuple m)) (runValidation (selectField lbl) m)))
+  >>> Validation \(Tuple m md5sum) -> do
+    let vals = fold $ (\key -> Array.fromFoldable (StrMap.lookup key m)) <$> ["id", "tr_id", "tr_amount", "tr_crc"]
+    computedMd5 <- Hash.hex Hash.MD5 (fold vals)
+    pure (if computedMd5 == md5sum then pure m else parseError $ "md5 sums do not match")

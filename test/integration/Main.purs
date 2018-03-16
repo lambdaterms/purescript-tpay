@@ -15,20 +15,19 @@ import Node.Crypto (CRYPTO)
 import Node.HTTP (HTTP)
 import Polyform.Validation (V(..), runValidation)
 import QuickServe (GET, POST, RequestBody(..), quickServe)
- 
-server2 :: forall r. RequestBody String -> POST (console :: CONSOLE | r) String
+
+type Effs r = (console :: CONSOLE, buffer :: BUFFER, crypto :: CRYPTO | r)
+
+server2 :: forall r. RequestBody String -> POST (Effs r) String
 server2 (RequestBody s) = do
   liftEff $ log s
-  let val = unwrap $ runValidation validateResponse s
+  val <- liftEff $ runValidation validateResponse s
   case val of
     Invalid e -> liftEff $ log (show e)
     Valid e r -> liftEff $ log (showRecord r)
   pure "TRUE"
 
-server :: forall r. GET r String
-server = pure "Hello, World!"
-
-main :: forall eff . Eff (console :: CONSOLE, http :: HTTP, buffer :: BUFFER, crypto :: CRYPTO | eff) Unit
+main :: forall eff . Eff (Effs (http :: HTTP | eff)) Unit
 main = do
   req <- prepareRequest { id: 12, amount: 17.1, description: "asdf", test1: 15 }
   log $ show req
