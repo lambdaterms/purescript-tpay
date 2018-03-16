@@ -18,26 +18,26 @@ import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Type.Row (class RowLacks, class RowToList, Cons, Nil, RLProxy(..), kind RowList)
 
 
-class Serialize a b where
-  serialize :: a -> StrMap b
+class Serialize a where
+  serialize :: a -> StrMap (Array String)
 
 instance serializeRecord ::
-  ( SerializeRecord proxy row b
+  ( SerializeRecord proxy row
   , RowToList row proxy
-  ) => Serialize (Record row) b where
+  ) => Serialize (Record row) where
   serialize = serializeImpl (RLProxy :: RLProxy proxy)
 
 
-class SerializeRecord (list :: RowList) (rec :: # Type) b | list -> rec where
-  serializeImpl :: RLProxy list -> Record rec -> StrMap b
+class SerializeRecord (list :: RowList) (rec :: # Type) | list -> rec where
+  serializeImpl :: RLProxy list -> Record rec -> StrMap (Array String)
 
 instance serializeCons :: 
-  ( SerializeRecord proxy row b
-  , SerializeValue a b
+  ( SerializeRecord proxy row
+  , SerializeValue a
   , IsSymbol l
   , RowCons l a rest row
   , RowLacks l rest
-  ) => SerializeRecord (Cons l a proxy) row b where
+  ) => SerializeRecord (Cons l a proxy) row where
   serializeImpl _ r =
     let
       key = (SProxy :: SProxy l)
@@ -46,29 +46,24 @@ instance serializeCons ::
       r'  = StrMap.insert (reflectSymbol key) val rest
     in r'
 
-instance serializeNil :: SerializeRecord Nil a b where
+instance serializeNil :: SerializeRecord Nil a where
   serializeImpl _ _ = StrMap.empty
 
 
-class SerializeValue a b where
-  serializeVal :: a -> b
+class SerializeValue a where
+  serializeVal :: a -> Array String
 
 instance serializeValueArray :: 
-  ( SerializeValue a b
+  ( SerializeValue a
   , Foldable f
-  ) => SerializeValue (f a) (Array b) where
-  serializeVal = Array.fromFoldable >>> map serializeVal
+  ) => SerializeValue (f a) where
+  serializeVal = Array.fromFoldable >=> serializeVal
 
-instance serializeValueInj ::
-  ( SerializeValue a b
-  ) => SerializeValue a (Array b) where
-  serializeVal = serializeVal >>> pure
+instance serializeValueInt :: SerializeValue Int where
+  serializeVal = show >>> pure
 
-instance serializeValueInt :: SerializeValue Int String where
-  serializeVal = show
+instance toStringNumber :: SerializeValue Number where
+  serializeVal = show >>> pure
 
-instance toStringNumber :: SerializeValue Number String where
-  serializeVal = show
-
-instance serializeValueString :: SerializeValue String String where
-  serializeVal x = x
+instance serializeValueString :: SerializeValue String where
+  serializeVal = pure
