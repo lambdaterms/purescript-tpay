@@ -2,9 +2,10 @@ module API.Tpay.Request where
 
 import Prelude
 
-import API.Tpay.Serialize (class Serialize, serialize)
+import API.Tpay.Serialize (serialize, serializeVal)
 import Control.Monad.Eff (Eff)
 import Data.Foldable (fold)
+import Data.Maybe (Maybe)
 import Data.StrMap (StrMap)
 import Data.StrMap as StrMap
 import Node.Buffer (BUFFER)
@@ -18,29 +19,24 @@ type RequestBase r =
   | r
   )
 
-type RequestMax = RequestBase (test1 :: Int, test2 :: String)
-type RequestMin = RequestBase ()
+type RequestOptional r =
+  ( crc :: Maybe String
+  | r
+  )
 
-class RowSubset (s :: # Type) (t :: # Type)
-
-instance rowSubset :: (Union r t s) => RowSubset r s
-
-type Request = RequestBase ()
-type RequestInternal = Record (RequestBase ( md5sum :: String ))
-
-class IsProperRequest (r :: # Type)
-
-instance isProperRequest :: (RowSubset r RequestMax, RowSubset RequestMin r) => IsProperRequest r
+type Request = Record (RequestBase (RequestOptional ()))
+type RequestInternal = Record (RequestBase (RequestOptional (md5sum :: String )))
 
 prepareRequest
-  :: forall r e
-  .  IsProperRequest r
-  => Serialize (Record r) String
-  => Record r -> Eff (buffer :: BUFFER, crypto :: CRYPTO | e) (StrMap String)
-prepareRequest r = 
+  :: forall e
+  .  Request
+  -> Eff (buffer :: BUFFER, crypto :: CRYPTO | e) (StrMap (Array String))
+prepareRequest (r@{ id, amount, description, crc }) =
   let
-    vals = serialize r
-    str  = fold <<< StrMap.values $ vals
+    strs :: Array String
+    strs = serializeVal id <> serializeVal amount <> serializeVal crc
+    str :: String 
+    str = fold strs
   in do
     md5 <- Hash.hex Hash.MD5 str
-    pure $ StrMap.insert "md5sum" md5 vals
+    pure $ StrMap.insert "md5sum" [md5] (serialize r)
