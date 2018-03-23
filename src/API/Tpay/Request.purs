@@ -29,12 +29,13 @@ type RequestInternal = Record (RequestBase (RequestOptional (md5sum :: String ))
 
 prepareRequest
   :: forall e
-  .  Request
+  .  String
+  -> Request
   -> Eff (buffer :: BUFFER, crypto :: CRYPTO | e) (StrMap (Array String))
-prepareRequest (r@{ id, amount, description, crc }) =
+prepareRequest code (r@{ id, amount, description, crc }) =
   let
     strs :: Array String
-    strs = serializeVal id <> serializeVal amount <> serializeVal crc
+    strs = serializeVal id <> serializeVal amount <> serializeVal crc <> [ code ]
     str :: String 
     str = fold strs
   in do
