@@ -77,11 +77,14 @@ selectField f = Validation \q -> pure $ case StrMap.lookup f q of
   Just s -> pure s
   Nothing -> parseError $ "Could not find field " <> f
 
+type Secret = String
+
 md5 :: forall e
-  . String
+   . String
+  -> Secret
   -> Validator (Eff (buffer :: BUFFER, crypto :: CRYPTO | e)) (StrMap String) (StrMap String)
-md5 lbl = (Validation (\m -> map (map (Tuple m)) (runValidation (selectField lbl) m)))
+md5 lbl code = (Validation (\m -> map (map (Tuple m)) (runValidation (selectField lbl) m)))
   >>> Validation \(Tuple m md5sum) -> do
     let vals = fold $ (\key -> Array.fromFoldable (StrMap.lookup key m)) <$> ["id", "tr_id", "tr_amount", "tr_crc"]
-    computedMd5 <- Hash.hex Hash.MD5 (fold vals)
+    computedMd5 <- Hash.hex Hash.MD5 (fold vals <> code)
     pure (if computedMd5 == md5sum then pure m else parseError $ "md5 sums do not match")

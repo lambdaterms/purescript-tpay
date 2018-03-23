@@ -25,9 +25,12 @@ type ResponseBase r =
 type Response = ResponseBase ()
 type ResponseInternal = ResponseBase (md5sum :: String)
 
-validateResponse :: forall e. Validator (Eff (buffer :: BUFFER, crypto :: CRYPTO | e)) String Response
-validateResponse = 
-  Validators.response >>> Validators.md5 "md5sum"
+validateResponse
+  :: forall e
+  .  String
+  -> Validator (Eff (buffer :: BUFFER, crypto :: CRYPTO | e)) String Response
+validateResponse secret = 
+  Validators.response >>> Validators.md5 "md5sum" secret
   >>> (builder
   <$> (selectField "id" >>> Validators.int)
   <*> selectField "tr_id"

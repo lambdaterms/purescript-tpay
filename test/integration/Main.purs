@@ -20,7 +20,7 @@ type Effs r = (console :: CONSOLE, buffer :: BUFFER, crypto :: CRYPTO | r)
 server2 :: forall r. RequestBody String -> POST (Effs r) String
 server2 (RequestBody s) = do
   liftEff $ log s
-  val <- liftEff $ runValidation validateResponse s
+  val <- liftEff $ runValidation (validateResponse "demo") s
   case val of
     Invalid e -> liftEff $ log (show e)
     Valid e r -> liftEff $ log (showRecord r)
