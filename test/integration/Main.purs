@@ -2,7 +2,7 @@ module Integration.Main where
 
 import Prelude
 
-import API.Tpay.Request (prepareRequest)
+import API.Tpay.Request (prepareRequest, defaultRequest)
 import API.Tpay.Response (validateResponse)
 import Control.Monad.Eff (Eff)
 import Control.Monad.Eff.Class (liftEff)
@@ -30,7 +30,7 @@ main
   :: forall eff
   .  Eff (Effs (http :: HTTP | eff)) Unit
 main = do
-  req <- prepareRequest "" { id: 12, amount: 17.1, description: "asdf", crc: Nothing }
+  req <- prepareRequest "" $ defaultRequest { id: 12, amount: 17.1, description: "asdf" }
   log $ show req
   let opts = { hostname: "localhost", port: 3000, backlog: Nothing }
   quickServe opts server2
