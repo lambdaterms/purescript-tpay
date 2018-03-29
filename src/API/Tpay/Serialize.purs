@@ -67,3 +67,6 @@ instance toStringNumber :: SerializeValue Number where
 
 instance serializeValueString :: SerializeValue String where
   serializeVal = pure
+
+instance serializeValueBoolean :: SerializeValue Boolean where
+  serializeVal = show >>> pure
