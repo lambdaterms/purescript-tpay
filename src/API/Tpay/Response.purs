@@ -5,6 +5,7 @@ import Prelude
 import API.Tpay.Validators (Validator, selectField)
 import API.Tpay.Validators as Validators
 import Control.Monad.Eff (Eff)
+import Data.Record.Fold (collect)
 import Node.Buffer (BUFFER)
 import Node.Crypto (CRYPTO)
 
@@ -30,28 +31,19 @@ validateResponse
   .  String
   -> Validator (Eff (buffer :: BUFFER, crypto :: CRYPTO | e)) String Response
 validateResponse secret = 
-  Validators.response >>> Validators.md5 "md5sum" secret
-  >>> (builder
-  <$> (selectField "id" >>> Validators.int)
-  <*> selectField "tr_id"
-  <*> selectField "tr_date"
-  <*> selectField "tr_crc"
-  <*> (selectField "tr_amount" >>> Validators.number)
-  <*> (selectField "tr_paid" >>> Validators.number)
-  <*> selectField "tr_desc"
-  <*> (selectField "tr_status" >>> Validators.boolean)
-  <*> selectField "tr_error"
-  <*> selectField "tr_email")
+      Validators.response 
+  >>> Validators.md5 "md5sum" secret
+  >>> validators
   where
-    builder =
-      { id: _
-      , trId: _
-      , trDate: _
-      , trCrc: _
-      , trAmount: _
-      , trPaid: _
-      , trDesc: _
-      , trStatus: _
-      , trError: _
-      , trEmail: _
+    validators = collect
+      { id: selectField "id" >>> Validators.int
+      , trId: selectField "tr_id"
+      , trDate: selectField "tr_date"
+      , trCrc: selectField "tr_crc"
+      , trAmount: selectField "tr_amount" >>> Validators.number
+      , trPaid: selectField "tr_paid" >>> Validators.number
+      , trDesc: selectField "tr_desc"
+      , trStatus: selectField "tr_status" >>> Validators.boolean
+      , trError: selectField "tr_error"
+      , trEmail: selectField "tr_email"
       }
