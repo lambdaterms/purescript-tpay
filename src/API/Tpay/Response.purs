@@ -4,18 +4,9 @@ import Prelude
 
 import API.Tpay.Validators (Validator, selectField)
 import API.Tpay.Validators as Validators
-import Catamorphism (class Algebra, recordApplyTo, recordCollect)
 import Control.Monad.Eff (Eff)
-import Data.Identity (Identity(..))
-import Data.Newtype (unwrap)
-import Data.Record (insert)
-import Data.StrMap (StrMap, fromFoldable)
-import Data.Symbol (class IsSymbol)
-import Data.Tuple (Tuple(..))
 import Node.Buffer (BUFFER)
 import Node.Crypto (CRYPTO)
-import Polyform.Validation (V, Validation(..))
-import Type.Row (class RowLacks)
 
 type ResponseBase r =
   { id :: Int
@@ -65,35 +56,29 @@ validateResponse secret =
       , trEmail: _
       }
 
-validators :: forall m. Monad m =>
-  { id :: Validator m (StrMap String) Int
-  , trId :: Validator m (StrMap String) String
-  , trAmount :: Validator m (StrMap String) Number
-  }
-validators =
-  { id: selectField "id" >>> Validators.int
-  , trId: selectField "tr_id"
-  , trAmount: selectField "tr_amount" >>> Validators.number
-  }
 
-testVal = fromFoldable 
-  [ Tuple "id" "7"
-  , Tuple "tr_id" "SOMEID"
-  , Tuple "tr_amount" "42.42"
-  ]
+-- validators :: forall m. Monad m =>
+--   { id :: Validator m (StrMap String) Int
+--   , trId :: Validator m (StrMap String) String
+--   , trAmount :: Validator m (StrMap String) Number
+--   }
 
-test1 :: Validator Identity (StrMap String) _
-test1 = recordCollect validators
+-- testVal = fromFoldable 
+--   [ Tuple "id" "7"
+--   , Tuple "tr_id" "SOMEID"
+--   , Tuple "tr_amount" "42.42"
+--   ]
+-- 
 
 
--- test2 :: Identity _
--- test2 = recordCollect test1
-
--- instance validatorAlgebra ::
---   ( IsSymbol lbl
---   , RowCons lbl (m (V e b)) tail row
---   , RowLacks lbl tail
---   ) => Algebra "map" lbl (Validation m e a b) (Tuple a (Record tail)) (Tuple a (Record row)) where
---   algebra _ lbl val (Tuple a rec) =
---     let v' = unwrap val a
---     in insert lbl v' rec
+-- -- test2 :: Identity _
+-- -- test2 = recordCollect test1
+-- 
+-- -- instance validatorAlgebra ::
+-- --   ( IsSymbol lbl
+-- --   , RowCons lbl (m (V e b)) tail row
+-- --   , RowLacks lbl tail
+-- --   ) => Algebra "map" lbl (Validation m e a b) (Tuple a (Record tail)) (Tuple a (Record row)) where
+-- --   algebra _ lbl val (Tuple a rec) =
+-- --     let v' = unwrap val a
+-- --     in insert lbl v' rec

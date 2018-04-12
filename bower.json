@@ -11,10 +11,10 @@
     "purescript-console": "^3.0.0",
     "purescript-uri": "git+https://github.com/paluh/purescript-uri",
     "purescript-crypto": "^0.2.0",
-    "purescript-polyform": "git+https://github.com/paluh/purescript-polyform#develop",
+    "purescript-polyform": "git+https://github.com/paluh/purescript-polyform#master",
     "purescript-numbers": "^5.0.0",
     "purescript-typelevel-prelude": "^2.6.0",
-    "purescript-record-recursion-schemes": "git+https://github.com/mbuszka/purescript-record-recursion-schemes.git"
+    "purescript-record-fold": "^0.1.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0",
