@@ -36,21 +36,27 @@ data Json
 
 v fv = Validation (pure <<< fromEither <<< lmap (Array.fromFoldable) <<< runExcept <<< fv)
 
-obj = object Obj $ collect
-  { field1: attr Int "field1" (v readInt)
-  , field2: attr Int "field2" (v readInt)
-  }
-
 validators =
   { id: attr Int "id" (v readInt)
-  -- , trId: attr "tr_id" (v readInt)
-  -- -- , trAmount: selectField "tr_amount" >>> Validators.number
   , nested: attr Obj "nested" $ collect
       { field1: attr Int "field1" (v readInt)
       , field2: attr Int "field2" (v readInt)
       }
   }
 
+test1
+  :: forall m
+  . Monad m
+  => Validation
+      m
+      Json
+      Foreign
+      { nested ::
+          { field2 :: Int
+          , field1 :: Int
+          }
+      , id :: Int
+      }
 test1 = object Obj $ collect validators
 
 result1 = runValidation test1 (toForeign { id: 8, nested: { field1: "blabla" }})
