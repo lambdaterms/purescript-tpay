@@ -5,7 +5,7 @@ import Prelude
 import API.Tpay.Serialize (serialize)
 import Control.Monad.Aff.AVar (AVAR)
 import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE)
+import Control.Monad.Eff.Console (CONSOLE, log, logShow)
 import Control.Monad.Eff.Timer (TIMER)
 import Control.Monad.Except (runExcept)
 import Data.Array ((:))
@@ -15,11 +15,13 @@ import Data.Either (Either(..))
 import Data.Foreign (Foreign, ForeignError(..), MultipleErrors, readInt, toForeign)
 import Data.Foreign.Index ((!))
 import Data.Identity (Identity(..))
-import Data.Newtype (unwrap)
+import Data.Newtype (class Newtype, unwrap)
 import Data.Record (insert)
+import Data.Record.Extra (showRecord)
 import Data.Record.Fold (applyTo, collect)
 import Data.StrMap (StrMap, fromFoldable)
 import Data.StrMap (fromFoldable)
+import Data.String (joinWith)
 import Data.Symbol (class IsSymbol)
 import Data.Tuple (Tuple(..))
 import Data.Tuple (Tuple(..))
@@ -32,20 +34,8 @@ import Test.Unit.Console (TESTOUTPUT)
 import Test.Unit.Main (runTest)
 import Type.Row (class RowLacks)
 
-data Json
-  = Int (Array ForeignError)
-  | Str (Array ForeignError)
-  | Obj (Attrs Json)
-
-
-
-type Err = { path ∷ String, error ∷ ForeignError }
-
-data Errs = Array Err
-
 v fv = Validation (pure <<< fromEither <<< lmap (map (\e → { path: [], error: [e] }) <<< Array.fromFoldable) <<< runExcept <<< fv)
 
--- attr ∷ ∀ m. Monad m ⇒ String → Validation m _ Foreign _ → Validation m _ Foreign _
 attr name validation = hoistFnMV \i → do
   let
     r = runExcept (i ! name)
@@ -81,9 +71,6 @@ validators =
 --       }
 -- test1 = object Obj $ collect validators
 -- 
-result1 = runValidation validators (toForeign { id: 8, nested: { field1: "blabla" }})
-result2 = runValidation validators (toForeign { id: 8, nested: { field1: 8, field2: 9 }})
-
 main
   :: forall eff
   . Eff
@@ -94,18 +81,30 @@ main
     | eff
     )
     Unit
-main = runTest $ do
-  result1 >>= traceAnyA
-  result2 >>= traceAnyA
-  suite "API.TPay.MapRow" $ do
-    test "serializes simple record with simple types" $ do
-      let
-        expected =
-          fromFoldable
-            [ (Tuple "test1"  ["15"])
-            , (Tuple "id" ["12"])
-            , (Tuple "description" ["asdf"])
-            , (Tuple "amount" ["17.1"])
-            ]
-        query = serialize { id: 12, amount: 17.1, description: "asdf", test1: 15 }
-      equal expected query
+main = do
+  let
+    result1 = runValidation validators (toForeign { id: 8, nested: { field1: "blabla" }})
+    result2 = runValidation validators (toForeign { id: 8, nested: { field1: 8, field2: 9 }})
+    result3 = runValidation validators (toForeign { idl: 8, nested: { field1: 8 }})
+
+    l = case _ of
+      Invalid errs → log $ joinWith "" $ (map showRecord) errs
+      _ → pure unit
+
+  result1 >>= l
+  result2 >>= l
+  result3 >>= l
+
+  runTest $ do
+    suite "API.TPay.MapRow" $ do
+      test "serializes simple record with simple types" $ do
+        let
+          expected =
+            fromFoldable
+              [ (Tuple "test1"  ["15"])
+              , (Tuple "id" ["12"])
+              , (Tuple "description" ["asdf"])
+              , (Tuple "amount" ["17.1"])
+              ]
+          query = serialize { id: 12, amount: 17.1, description: "asdf", test1: 15 }
+        equal expected query

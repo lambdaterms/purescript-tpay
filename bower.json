@@ -14,7 +14,8 @@
     "purescript-polyform": "git+https://github.com/paluh/purescript-polyform#master",
     "purescript-numbers": "^5.0.0",
     "purescript-typelevel-prelude": "^2.6.0",
-    "purescript-record-fold": "^0.1.0"
+    "purescript-record-fold": "^0.1.0",
+    "purescript-record-extra": "^0.3.0"
   },
   "devDependencies": {
     "purescript-psci-support": "^3.0.0",
