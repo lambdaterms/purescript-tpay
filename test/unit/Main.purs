@@ -70,7 +70,7 @@ validators =
 --       , id :: Int
 --       }
 -- test1 = object Obj $ collect validators
--- 
+--
 main
   :: forall eff
   . Eff
@@ -94,6 +94,18 @@ main = do
   result1 >>= l
   result2 >>= l
   result3 >>= l
+  -- Output 1:
+  -- { error: [ (TypeMismatch "Int" "Undefined")]
+  --          , path: ["nested", "field2"] }
+  -- { error: [(TypeMismatch "Int" "String")], path: ["nested","field1"] }
+  --
+  -- Output 3:
+  -- { error: [ (TypeMismatch "Int" "Undefined")]
+  --          , path: ["nested", "field2"]
+  --          }
+  -- { error: [(TypeMismatch "Int" "Undefined")]
+  --          , path: ["id"]
+  --          }
 
   runTest $ do
     suite "API.TPay.MapRow" $ do
