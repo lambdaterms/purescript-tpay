@@ -14,6 +14,6 @@
     "purescript-numbers": "^6.0.0",
     "purescript-typelevel-prelude": "^3.0.0",
     "purescript-record-fold": "mbuszka/purescript-record-fold#master",
-    "purescript-validators": "https://github.com/lambdaterms/purescript-validators.git"
+    "purescript-polyform-validators": "^0.0.5"
   }
 }

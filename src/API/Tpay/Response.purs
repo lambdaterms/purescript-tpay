@@ -3,17 +3,21 @@ module API.Tpay.Response where
 import Prelude
 
 import Control.Apply (lift2)
-import Data.Either (Either(..))
 import Data.Foldable (fold)
 import Data.Record.Fold (collect)
 import Data.Traversable (traverse)
+import Data.Variant (Variant, inj)
+import Effect (Effect)
+import Foreign.Object (Object)
 import Node.Crypto.Hash (Algorithm(..), hex)
-import Polyform.Field.Validation.Combinators (check)
 import Polyform.Validation (Validation, hoistFnMV)
+import Polyform.Validators (check)
 import Polyform.Validators.UrlEncoded (boolean, int, number, single, urlEncoded)
--- import Text.Parsing.StringParser (ParseError(..))
--- import Validators.Combinators (check)
+import Type.Prelude (SProxy(..))
 -- import Validators.UrlEncoded (boolean, int, number, single, urlEncoded)
+
+
+type ResponseError err = Variant (urlError ∷ String, md5 ∷ String | err)
 
 type ResponseBase r =
   { id :: Int
@@ -32,26 +36,26 @@ type ResponseBase r =
 type Response = ResponseBase ()
 type ResponseInternal = ResponseBase (md5sum :: String)
 
--- checkMd5 
---   :: forall e
---    . String 
---   -> Validation
---       (Eff (buffer :: BUFFER, crypto :: CRYPTO | e))
---       (Array ParseError)
---       (StrMap (Array String))
---       (StrMap (Array String))
+checkMd5
+  :: forall err
+   . String
+  -> Validation
+      Effect
+      (Array (ResponseError err))
+      (Object (Array String))
+      (Object (Array String))
 checkMd5 code = check msg $ lift2 (==) (single "md5sum") (str >>> calcMd5)
   where
-    msg = (const [Left "Invalid md5"])
+    msg = (const [inj (SProxy ∷ SProxy "md5") "Invalid md5"])
     str = ((_ <> code) <<< fold) <$> traverse single ["id", "tr_id", "tr_amount", "tr_crc"]
     calcMd5 = hoistFnMV $ \x -> pure <$> hex MD5 x
 
--- validateResponse
---   :: forall e
---   .  String
---   -> Validation (Eff (buffer :: BUFFER, crypto :: CRYPTO | e)) (Array ParseError) String Response
-validateResponse secret = 
-      urlEncoded
+validateResponse
+  :: forall err
+  .  String
+  -> Validation Effect (Array (ResponseError err)) String Response
+validateResponse secret
+  = urlEncoded { replacePlus: true }
   >>> checkMd5 secret
   >>> validators
   where
