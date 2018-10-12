@@ -14,7 +14,8 @@
     "purescript-numbers": "^6.0.0",
     "purescript-typelevel-prelude": "^3.0.0",
     "purescript-record-fold": "mbuszka/purescript-record-fold#master",
-    "purescript-polyform-validators": "^0.0.5"
+    "purescript-polyform-validators": "^0.0.5",
+    "purescript-form-urlencoded": "^4.0.1"
   },
   "devDependencies": {
     "purescript-quickserve": "^3.0.0",
