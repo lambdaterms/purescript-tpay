@@ -14,7 +14,6 @@ import Polyform.Validation (Validation, hoistFnMV)
 import Polyform.Validators (check)
 import Polyform.Validators.UrlEncoded (boolean, int, number, single, urlEncoded)
 import Type.Prelude (SProxy(..))
--- import Validators.UrlEncoded (boolean, int, number, single, urlEncoded)
 
 
 type ResponseError err = Variant (urlError ∷ String, md5 ∷ String | err)
