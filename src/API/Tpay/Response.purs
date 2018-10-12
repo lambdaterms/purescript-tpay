@@ -19,26 +19,26 @@ import Type.Prelude (SProxy(..))
 type ResponseError err = Variant (urlError ∷ String, md5 ∷ String | err)
 
 type ResponseBase r =
-  { id :: Int
-  , trId :: String
-  , trDate :: String
-  , trCrc :: String
-  , trAmount :: Number
-  , trPaid :: Number
-  , trDesc :: String
-  , trStatus :: Boolean
-  , trError :: String
-  , trEmail :: String
+  { id ∷ Int
+  , trId ∷ String
+  , trDate ∷ String
+  , trCrc ∷ String
+  , trAmount ∷ Number
+  , trPaid ∷ Number
+  , trDesc ∷ String
+  , trStatus ∷ Boolean
+  , trError ∷ String
+  , trEmail ∷ String
   | r
   }
 
 type Response = ResponseBase ()
-type ResponseInternal = ResponseBase (md5sum :: String)
+type ResponseInternal = ResponseBase (md5sum ∷ String)
 
 checkMd5
-  :: forall err
+  ∷ ∀ err
    . String
-  -> Validation
+  → Validation
       Effect
       (Array (ResponseError err))
       (Object (Array String))
@@ -47,12 +47,12 @@ checkMd5 code = check msg $ lift2 (==) (single "md5sum") (str >>> calcMd5)
   where
     msg = (const [inj (SProxy ∷ SProxy "md5") "Invalid md5"])
     str = ((_ <> code) <<< fold) <$> traverse single ["id", "tr_id", "tr_amount", "tr_crc"]
-    calcMd5 = hoistFnMV $ \x -> pure <$> hex MD5 x
+    calcMd5 = hoistFnMV $ \x → pure <$> hex MD5 x
 
 validateResponse
-  :: forall err
-  .  String
-  -> Validation Effect (Array (ResponseError err)) String Response
+  ∷ ∀ err
+  . String
+  → Validation Effect (Array (ResponseError err)) String Response
 validateResponse secret
   = urlEncoded { replacePlus: true }
   >>> checkMd5 secret

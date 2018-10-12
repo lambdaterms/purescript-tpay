@@ -11,40 +11,40 @@ import Effect (Effect)
 import Node.Crypto.Hash as Hash
 
 type RequestBase r =
-  ( id :: Int
-  , amount :: Number
-  , description :: String
+  ( id ∷ Int
+  , amount ∷ Number
+  , description ∷ String
   | r
   )
 
 type RequestOptional r =
-  ( crc :: Maybe String
-  , online :: Maybe Int
-  , group :: Maybe Int
-  , result_url :: Maybe String
-  , result_email :: Maybe String
-  , merchant_description :: Maybe String
-  , custom_description :: Maybe String
-  , return_url :: Maybe String
-  , return_error_url :: Maybe String
-  , language :: Maybe String
-  , email :: Maybe String
-  , name :: Maybe String
-  , address :: Maybe String
-  , city :: Maybe String
-  , zip :: Maybe String
-  , country :: Maybe String
-  , phone :: Maybe String
-  , accept_tos :: Maybe Int
-  , expiration_date :: Maybe String
-  , timehash :: Maybe String
+  ( crc ∷ Maybe String
+  , online ∷ Maybe Int
+  , group ∷ Maybe Int
+  , result_url ∷ Maybe String
+  , result_email ∷ Maybe String
+  , merchant_description ∷ Maybe String
+  , custom_description ∷ Maybe String
+  , return_url ∷ Maybe String
+  , return_error_url ∷ Maybe String
+  , language ∷ Maybe String
+  , email ∷ Maybe String
+  , name ∷ Maybe String
+  , address ∷ Maybe String
+  , city ∷ Maybe String
+  , zip ∷ Maybe String
+  , country ∷ Maybe String
+  , phone ∷ Maybe String
+  , accept_tos ∷ Maybe Int
+  , expiration_date ∷ Maybe String
+  , timehash ∷ Maybe String
   | r
   )
 
 type Request = Record (RequestBase (RequestOptional ()))
-type RequestInternal = Record (RequestBase (RequestOptional (md5sum :: String )))
+type RequestInternal = Record (RequestBase (RequestOptional (md5sum ∷ String )))
 
-defaultRequest :: Record (RequestBase ()) -> Request
+defaultRequest ∷ Record (RequestBase ()) → Request
 defaultRequest { id, amount, description } =
   { id
   , amount
@@ -72,15 +72,15 @@ defaultRequest { id, amount, description } =
   }
 
 prepareRequest
-  :: String
-  -> Request
-  -> Effect (Map String (Array String))
+  ∷ String
+  → Request
+  → Effect (Map String (Array String))
 prepareRequest code (r@{ id, amount, description, crc }) =
   let
-    strs :: Array String
+    strs ∷ Array String
     strs = serializeVal id <> serializeVal amount <> serializeVal crc <> [ code ]
-    str :: String 
+    str ∷ String 
     str = fold strs
   in do
-    md5 <- Hash.hex Hash.MD5 str
+    md5 ← Hash.hex Hash.MD5 str
     pure $ Map.insert "md5sum" [md5] (serialize r)
