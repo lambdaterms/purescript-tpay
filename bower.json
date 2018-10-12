@@ -15,5 +15,9 @@
     "purescript-typelevel-prelude": "^3.0.0",
     "purescript-record-fold": "mbuszka/purescript-record-fold#master",
     "purescript-polyform-validators": "^0.0.5"
+  },
+  "devDependencies": {
+    "purescript-quickserve": "^3.0.0",
+    "purescript-test-unit": "^14.0.0"
   }
 }
