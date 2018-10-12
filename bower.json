@@ -7,21 +7,18 @@
     "output"
   ],
   "dependencies": {
-    "purescript-prelude": "^3.1.1",
-    "purescript-console": "^3.0.0",
-    "purescript-uri": "git+https://github.com/paluh/purescript-uri",
-    "purescript-crypto": "^0.2.0",
-    "purescript-polyform": "^0.6.1",
-    "purescript-numbers": "^5.0.0",
-    "purescript-typelevel-prelude": "^2.6.0",
-    "purescript-record-fold": "^0.1.0",
-    "purescript-validators": "https://github.com/lambdaterms/purescript-validators.git"
+    "purescript-prelude": "^4.1.0",
+    "purescript-console": "^4.1.0",
+    "purescript-crypto": "^1.1.0",
+    "purescript-polyform": "^0.7.0",
+    "purescript-numbers": "^6.0.0",
+    "purescript-typelevel-prelude": "^3.0.0",
+    "purescript-record-fold": "mbuszka/purescript-record-fold#master",
+    "purescript-polyform-validators": "^0.0.5",
+    "purescript-form-urlencoded": "^4.0.1"
   },
   "devDependencies": {
-    "purescript-psci-support": "^3.0.0",
-    "purescript-record-show": "^0.4.0",
-    "purescript-debug": "^3.0.0",
-    "purescript-quickserve": "^2.0.0",
-    "purescript-test-unit": "^13.0.0"
+    "purescript-quickserve": "^3.0.0",
+    "purescript-test-unit": "^14.0.0"
   }
 }

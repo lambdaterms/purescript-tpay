@@ -5,68 +5,71 @@ module API.Tpay.Serialize
   , serialize
   , serializeImpl
   , serializeVal
-  ) where
+  )
+  where
 
 import Prelude
 
 import Data.Array as Array
 import Data.Foldable (class Foldable)
-import Data.Record as Record
-import Data.StrMap (StrMap)
-import Data.StrMap as StrMap
+import Data.Map (Map)
+import Data.Map as Map
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
-import Type.Row (class RowLacks, class RowToList, Cons, Nil, RLProxy(..), kind RowList)
-
+import Prim.Row (class Cons, class Lacks)
+import Record as Record
+import Type.Row (class RowToList, Cons, Nil, RLProxy(..), kind RowList)
 
 class Serialize a where
-  serialize :: a -> StrMap (Array String)
+  serialize ∷ a → Map String (Array String)
 
-instance serializeRecord ::
-  ( SerializeRecord proxy row
-  , RowToList row proxy
-  ) => Serialize (Record row) where
-  serialize = serializeImpl (RLProxy :: RLProxy proxy)
-
-
-class SerializeRecord (list :: RowList) (rec :: # Type) | list -> rec where
-  serializeImpl :: RLProxy list -> Record rec -> StrMap (Array String)
-
-instance serializeCons :: 
-  ( SerializeRecord proxy row
-  , SerializeValue a
-  , IsSymbol l
-  , RowCons l a rest row
-  , RowLacks l rest
-  ) => SerializeRecord (Cons l a proxy) row where
-  serializeImpl _ r =
-    let
-      key = (SProxy :: SProxy l)
-      rest = serializeImpl (RLProxy :: RLProxy proxy) r
-      val = serializeVal $ Record.get key r
-      r'  = StrMap.insert (reflectSymbol key) val rest
-    in r'
-
-instance serializeNil :: SerializeRecord Nil a where
-  serializeImpl _ _ = StrMap.empty
-
+class SerializeRecord (list ∷ RowList) (rec ∷ # Type) | list → rec where
+  serializeImpl ∷ RLProxy list → Record rec → Map String (Array String)
 
 class SerializeValue a where
-  serializeVal :: a -> Array String
+  serializeVal ∷ a → Array String
 
-instance serializeValueArray :: 
-  ( SerializeValue a
-  , Foldable f
-  ) => SerializeValue (f a) where
+instance serializeRecord
+    ∷ ( SerializeRecord proxy row , RowToList row proxy )
+    ⇒ Serialize (Record row)
+  where
+  serialize = serializeImpl (RLProxy ∷ RLProxy proxy)
+
+instance serializeCons
+    ∷ 
+    ( SerializeRecord proxy row
+    , SerializeValue a
+    , IsSymbol l
+    , Cons l a rest row
+    , Lacks l rest
+    ) ⇒ SerializeRecord (Cons l a proxy) row
+  where
+  serializeImpl _ r =
+    let
+      key = (SProxy ∷ SProxy l)
+      rest = serializeImpl (RLProxy ∷ RLProxy proxy) r
+      val = serializeVal $ Record.get key r
+    in
+      Map.insert (reflectSymbol key) val rest
+
+instance serializeNil ∷ SerializeRecord Nil a where
+  serializeImpl _ _ = Map.empty
+
+instance serializeValueArray
+    ∷ 
+    ( SerializeValue a
+    , Foldable f
+    ) ⇒ SerializeValue (f a)
+  where
   serializeVal = Array.fromFoldable >=> serializeVal
 
-instance serializeValueInt :: SerializeValue Int where
+instance serializeValueInt ∷ SerializeValue Int where
   serializeVal = show >>> pure
 
-instance toStringNumber :: SerializeValue Number where
+instance toStringNumber ∷ SerializeValue Number where
   serializeVal = show >>> pure
 
-instance serializeValueString :: SerializeValue String where
+instance serializeValueString ∷ SerializeValue String where
   serializeVal = pure
 
-instance serializeValueBoolean :: SerializeValue Boolean where
+instance serializeValueBoolean ∷ SerializeValue Boolean where
   serializeVal = show >>> pure
