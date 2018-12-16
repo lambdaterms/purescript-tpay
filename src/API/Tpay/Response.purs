@@ -10,11 +10,10 @@ import Data.Variant (Variant, inj)
 import Effect (Effect)
 import Foreign.Object (Object)
 import Node.Crypto.Hash (Algorithm(..), hex)
-import Polyform.Validation (Validation, hoistFnMV)
+import Polyform.Validator (Validator, hoistFnMV)
 import Polyform.Validators (check)
 import Polyform.Validators.UrlEncoded (boolean, int, number, single, urlEncoded)
 import Type.Prelude (SProxy(..))
--- import Validators.UrlEncoded (boolean, int, number, single, urlEncoded)
 
 
 type ResponseError err = Variant (urlError ∷ String, md5 ∷ String | err)
@@ -39,7 +38,7 @@ type ResponseInternal = ResponseBase (md5sum :: String)
 checkMd5
   :: forall err
    . String
-  -> Validation
+  -> Validator
       Effect
       (Array (ResponseError err))
       (Object (Array String))
@@ -53,7 +52,7 @@ checkMd5 code = check msg $ lift2 (==) (single "md5sum") (str >>> calcMd5)
 validateResponse
   :: forall err
   .  String
-  -> Validation Effect (Array (ResponseError err)) String Response
+  -> Validator Effect (Array (ResponseError err)) String Response
 validateResponse secret
   = urlEncoded { replacePlus: true }
   >>> checkMd5 secret

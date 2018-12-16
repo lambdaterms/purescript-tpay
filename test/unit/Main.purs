@@ -3,27 +3,14 @@ module Unit.Main where
 import Prelude
 
 import API.Tpay.Serialize (serialize)
-import Control.Monad.Aff.AVar (AVAR)
-import Control.Monad.Eff (Eff)
-import Control.Monad.Eff.Console (CONSOLE)
-import Control.Monad.Eff.Timer (TIMER)
-import Data.StrMap (fromFoldable)
+import Data.Map (fromFoldable)
 import Data.Tuple (Tuple(..))
+import Effect (Effect)
 import Test.Unit (suite, test)
 import Test.Unit.Assert (equal)
-import Test.Unit.Console (TESTOUTPUT)
 import Test.Unit.Main (runTest)
 
-main
-  :: forall eff
-  . Eff
-    ( timer :: TIMER
-    , avar :: AVAR
-    , console :: CONSOLE
-    , testOutput :: TESTOUTPUT
-    | eff
-    )
-    Unit
+main :: Effect Unit
 main = runTest $ do
   suite "API.TPay.MapRow" $ do
     test "serializes simple record with simple types" $ do
