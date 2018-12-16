@@ -10,12 +10,11 @@
     "purescript-prelude": "^4.1.0",
     "purescript-console": "^4.1.0",
     "purescript-crypto": "^1.1.0",
-    "purescript-polyform": "^0.7.0",
     "purescript-numbers": "^6.0.0",
     "purescript-typelevel-prelude": "^3.0.0",
     "purescript-record-fold": "mbuszka/purescript-record-fold#master",
-    "purescript-polyform-validators": "^0.0.5",
-    "purescript-form-urlencoded": "^4.0.1"
+    "purescript-form-urlencoded": "^4.0.1",
+    "purescript-polyform-validators": "lambdaterms/purescript-polyform-validators#polyform-redesign"
   },
   "devDependencies": {
     "purescript-quickserve": "^3.0.0",

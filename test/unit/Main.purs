@@ -13,7 +13,7 @@ import Test.Unit (suite, test)
 import Test.Unit.Assert (equal)
 import Test.Unit.Main (runTest)
 
-main ∷ Effect Unit
+main :: Effect Unit
 main = runTest $ do
   suite "API.TPay.Serialize" $ do
     test "serializes simple record with simple types" $ do

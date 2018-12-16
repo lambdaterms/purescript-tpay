@@ -5,22 +5,22 @@ import Prelude
 import API.Tpay.Request (prepareRequest, defaultRequest)
 import API.Tpay.Response (validateResponse)
 import Data.Maybe (Maybe(..))
+import Data.Validation.Semigroup (unV)
 import Effect (Effect)
 import Effect.Class (liftEffect)
-import Effect.Console (log)
-import Polyform.Validation (V(..), runValidation)
-import QuickServe (POST, RequestBody(..), quickServe)
+import Effect.Class.Console (log)
+import Global.Unsafe (unsafeStringify)
+import Polyform.Validator (runValidator)
+import QuickServe (RequestBody(..), POST, quickServe)
 
-server2 ∷ RequestBody String → POST String
+server2 :: RequestBody String -> POST String
 server2 (RequestBody s) = do
-  liftEffect $ log s
-  val ← liftEffect $ runValidation (validateResponse "demo") s
-  case val of
-    Invalid e → liftEffect $ log "error"
-    Valid e r → liftEffect $ log (show r)
+  log s
+  val <- liftEffect $ runValidator (validateResponse "demo") s
+  unV (log <<< unsafeStringify) (log <<< unsafeStringify) val
   pure "TRUE"
 
-main ∷ Effect Unit
+main ::  Effect Unit
 main = do
   req ← prepareRequest "" $ defaultRequest { id: 12, amount: 17.1, description: "asdf" }
   log $ show req
