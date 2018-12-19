@@ -2,8 +2,8 @@ module Integration.Main where
 
 import Prelude
 
-import API.Tpay.Request (prepareRequest, defaultRequest)
-import API.Tpay.Response (validateResponse)
+import Tpay.Request (prepareRequest, defaultRequest)
+import Tpay.Response (validateResponse)
 import Data.Decimal (fromString) as Decimal
 import Data.Maybe (Maybe(..), fromJust)
 import Data.Validation.Semigroup (unV)

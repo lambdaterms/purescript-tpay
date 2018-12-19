@@ -1,8 +1,8 @@
-module API.Tpay where
+module Tpay where
 
 import Prelude
 
-import API.Tpay.Request (Request, prepareRequest)
+import Tpay.Request (Request, prepareRequest)
 import Data.Array as Array
 import Data.FormURLEncoded (encode)
 import Data.FormURLEncoded as FormURLEncoded

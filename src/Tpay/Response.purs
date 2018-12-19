@@ -1,8 +1,8 @@
-module API.Tpay.Response where
+module Tpay.Response where
 
 import Prelude
 
-import API.Tpay.Validators (decimal)
+import Tpay.Validators (decimal)
 import Control.Apply (lift2)
 import Data.Decimal (Decimal)
 import Data.Foldable (fold)

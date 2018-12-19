@@ -1,4 +1,4 @@
-module API.Tpay.Validators where
+module Tpay.Validators where
 
 import Prelude
 

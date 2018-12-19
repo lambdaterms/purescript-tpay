@@ -2,9 +2,9 @@ module Unit.Main where
 
 import Prelude
 
-import API.Tpay (postBody)
-import API.Tpay.Request (defaultRequest)
-import API.Tpay.Serialize (serialize)
+import Tpay (postBody)
+import Tpay.Request (defaultRequest)
+import Tpay.Serialize (serialize)
 import Data.Decimal (fromString) as Decimal
 import Data.Map (fromFoldable)
 import Data.Maybe (fromJust)
@@ -18,7 +18,7 @@ import Test.Unit.Main (runTest)
 
 main :: Effect Unit
 main = runTest $ do
-  suite "API.TPay.Serialize" $ do
+  suite "TPay.Serialize" $ do
     test "serializes simple record with simple types" $ do
       let
         expected =
@@ -30,7 +30,7 @@ main = runTest $ do
             ]
         query = serialize { id: "12", amount: 17.1, description: "asdf", test1: 15 }
       equal expected query
-  suite "API.TPay" $ do
+  suite "TPay" $ do
 
     let
       amount = unsafePartial (fromJust $ Decimal.fromString "17.1")

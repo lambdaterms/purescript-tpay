@@ -1,4 +1,4 @@
-module API.Tpay.Serialize 
+module Tpay.Serialize
   ( class Serialize
   , class SerializeRecord
   , class SerializeValue
@@ -11,6 +11,8 @@ module API.Tpay.Serialize
 import Prelude
 
 import Data.Array as Array
+import Data.Decimal (Decimal)
+import Data.Decimal (toString) as Decimal
 import Data.Foldable (class Foldable)
 import Data.Map (Map)
 import Data.Map as Map
@@ -73,3 +75,6 @@ instance serializeValueString ∷ SerializeValue String where
 
 instance serializeValueBoolean ∷ SerializeValue Boolean where
   serializeVal = show >>> pure
+
+instance serializeValueDecimal ∷ SerializeValue Decimal where
+  serializeVal = Decimal.toString >>> pure

@@ -1,8 +1,8 @@
-module API.Tpay.Request where
+module Tpay.Request where
 
 import Prelude
 
-import API.Tpay.Serialize (serialize, serializeVal)
+import Tpay.Serialize (serialize, serializeVal)
 import Data.Decimal (Decimal)
 import Data.Foldable (fold)
 import Data.Map (Map)
