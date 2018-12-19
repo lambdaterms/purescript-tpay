@@ -2,7 +2,9 @@ module API.Tpay.Response where
 
 import Prelude
 
+import API.Tpay.Validators (decimal)
 import Control.Apply (lift2)
+import Data.Decimal (Decimal)
 import Data.Foldable (fold)
 import Data.Record.Fold (collect)
 import Data.Traversable (traverse)
@@ -12,7 +14,7 @@ import Node.Crypto.Hash (Algorithm(..), hex)
 import Polyform.Validator (hoistFnMV)
 import Polyform.Validators (Validator, check)
 import Polyform.Validators.UrlEncoded (Error) as Urlencoded
-import Polyform.Validators.UrlEncoded (boolean, field, int, number, parse, string)
+import Polyform.Validators.UrlEncoded (boolean, field, int, parse, string)
 import Polyform.Validators.UrlEncoded.Types (Decoded) as Urlencoded.Types
 import Type.Prelude (SProxy(..))
 import Type.Row (type (+))
@@ -25,8 +27,8 @@ type ResponseBase r =
   , trId ∷ String
   , trDate ∷ String
   , trCrc ∷ String
-  , trAmount ∷ Number
-  , trPaid ∷ Number
+  , trAmount ∷ Decimal
+  , trPaid ∷ Decimal
   , trDesc ∷ String
   , trStatus ∷ Boolean
   , trError ∷ String
@@ -58,17 +60,15 @@ validateResponse
 validateResponse secret
   = parse { replacePlus: true }
   >>> checkMd5 secret
-  >>> validators
-  where
-    validators = collect
-      { id: field "id" int
-      , trId: field "tr_id" string
-      , trDate: field "tr_date" string
-      , trCrc: field "tr_crc" string
-      , trAmount: field "tr_amount" number
-      , trPaid: field "tr_paid" number
-      , trDesc: field "tr_desc" string
-      , trStatus: field "tr_status" boolean
-      , trError: field "tr_error" string
-      , trEmail: field "tr_email" string
-      }
+  >>> collect
+    { id: field "id" int
+    , trId: field "tr_id" string
+    , trDate: field "tr_date" string
+    , trCrc: field "tr_crc" string
+    , trAmount: field "tr_amount" decimal
+    , trPaid: field "tr_paid" decimal
+    , trDesc: field "tr_desc" string
+    , trStatus: field "tr_status" boolean
+    , trError: field "tr_error" string
+    , trEmail: field "tr_email" string
+    }

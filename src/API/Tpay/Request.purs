@@ -3,6 +3,7 @@ module API.Tpay.Request where
 import Prelude
 
 import API.Tpay.Serialize (serialize, serializeVal)
+import Data.Decimal (Decimal)
 import Data.Foldable (fold)
 import Data.Map (Map)
 import Data.Map as Map
@@ -11,8 +12,8 @@ import Effect (Effect)
 import Node.Crypto.Hash as Hash
 
 type RequestBase r =
-  ( id ∷ Int
-  , amount ∷ Number
+  ( id ∷ String
+  , amount ∷ Decimal
   , description ∷ String
   | r
   )
@@ -79,7 +80,7 @@ prepareRequest code (r@{ id, amount, description, crc }) =
   let
     strs ∷ Array String
     strs = serializeVal id <> serializeVal amount <> serializeVal crc <> [ code ]
-    str ∷ String 
+    str ∷ String
     str = fold strs
   in do
     md5 ← Hash.hex Hash.MD5 str
