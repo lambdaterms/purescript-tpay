@@ -4,12 +4,14 @@ import Prelude
 
 import API.Tpay.Request (prepareRequest, defaultRequest)
 import API.Tpay.Response (validateResponse)
-import Data.Maybe (Maybe(..))
+import Data.Decimal (fromString) as Decimal
+import Data.Maybe (Maybe(..), fromJust)
 import Data.Validation.Semigroup (unV)
 import Effect (Effect)
 import Effect.Class (liftEffect)
 import Effect.Class.Console (log)
 import Global.Unsafe (unsafeStringify)
+import Partial.Unsafe (unsafePartial)
 import Polyform.Validator (runValidator)
 import QuickServe (RequestBody(..), POST, quickServe)
 
@@ -22,7 +24,9 @@ server2 (RequestBody s) = do
 
 main ::  Effect Unit
 main = do
-  req ← prepareRequest "" $ defaultRequest { id: 12, amount: 17.1, description: "asdf" }
+  let
+    amount = unsafePartial (fromJust $ Decimal.fromString "17.1")
+  req ← prepareRequest "" $ defaultRequest { id: "12", amount, description: "asdf" }
   log $ show req
   let opts = { hostname: "localhost", port: 3000, backlog: Nothing }
   quickServe opts server2
