@@ -9,19 +9,18 @@ import Data.FormURLEncoded as FormURLEncoded
 import Data.Map as Map
 import Effect (Effect)
 
-url ∷ String
-url = "https://secure.tpay.com"
+type Url = String
 
-get ∷ String → Request → Effect String
-get code req = do
-  body ← postBody code req
-  pure $ url <> "?" <> body
-
-postBody ∷ String → Request → Effect String
-postBody code req = do
-  obj ← prepareRequest code req
-  pure $ obj
-    # map Array.head
-    # Map.toUnfoldable
-    # FormURLEncoded.fromArray
-    # encode
+url ∷ { code ∷ String, request ∷  Request } → Effect Url
+url { code, request } = do
+  body ← query
+  pure $ "https://secure.tpay.com?" <> body
+  where
+    query ∷ Effect String
+    query = do
+      obj ← prepareRequest code request
+      pure $ obj
+        # map Array.head
+        # Map.toUnfoldable
+        # FormURLEncoded.fromArray
+        # encode

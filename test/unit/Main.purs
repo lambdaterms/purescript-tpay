@@ -2,7 +2,7 @@ module Unit.Main where
 
 import Prelude
 
-import Tpay (postBody)
+import Tpay as TPay
 import Tpay.Request (defaultRequest)
 import Tpay.Serialize (serialize)
 import Data.Decimal (fromString) as Decimal
@@ -34,8 +34,8 @@ main = runTest $ do
 
     let
       amount = unsafePartial (fromJust $ Decimal.fromString "17.1")
-      req = defaultRequest { id: "12", amount, description: "asdf" }
-      expectedBody = "accept_tos&address&amount=17.1&city&country&crc&custom_description&description=asdf&email&expiration_date&group&id=12&language&md5sum=03e6e117f7fdf42e09c47bfc089ed829&merchant_description&name&online&phone&result_email&result_url&return_error_url&return_url&timehash&zip"
+      request = defaultRequest { id: "12", amount, description: "asdf" }
+      expectedUrl = "https://secure.tpay.com?accept_tos&address&amount=17.1&city&country&crc&custom_description&description=asdf&email&expiration_date&group&id=12&language&md5sum=03e6e117f7fdf42e09c47bfc089ed829&merchant_description&name&online&phone&result_email&result_url&return_error_url&return_url&timehash&zip"
     test "simple post body" $ do
-      body ← liftEffect $ postBody "" req
-      equal expectedBody body
+      url ← liftEffect $ TPay.url { code: "", request }
+      equal expectedUrl url
