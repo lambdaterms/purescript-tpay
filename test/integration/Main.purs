@@ -12,13 +12,12 @@ import Effect.Class (liftEffect)
 import Effect.Class.Console (log)
 import Global.Unsafe (unsafeStringify)
 import Partial.Unsafe (unsafePartial)
-import Polyform.Validator (runValidator)
 import QuickServe (RequestBody(..), POST, quickServe)
 
 server2 :: RequestBody String -> POST String
-server2 (RequestBody s) = do
-  log s
-  val <- liftEffect $ runValidator (validateResponse "demo") s
+server2 (RequestBody response) = do
+  log response
+  val <- liftEffect $ validateResponse { secret: "demo", response }
   unV (log <<< unsafeStringify) (log <<< unsafeStringify) val
   pure "TRUE"
 
