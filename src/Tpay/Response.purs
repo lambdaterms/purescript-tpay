@@ -14,7 +14,7 @@ import Node.Crypto.Hash (Algorithm(..), hex)
 import Polyform.Validator (hoistFnMV)
 import Polyform.Validators (Validator, check)
 import Polyform.Validators.UrlEncoded (Error) as Urlencoded
-import Polyform.Validators.UrlEncoded (boolean, field, int, parse, string)
+import Polyform.Validators.UrlEncoded (boolean, field, int, query, string)
 import Polyform.Validators.UrlEncoded.Types (Decoded) as Urlencoded.Types
 import Type.Prelude (SProxy(..))
 import Type.Row (type (+))
@@ -58,7 +58,7 @@ validateResponse
   .  String
   -> Validator Effect (ResponseError + e) String Response
 validateResponse secret
-  = parse { replacePlus: true }
+  = query { replacePlus: true }
   >>> checkMd5 secret
   >>> collect
     { id: field "id" int

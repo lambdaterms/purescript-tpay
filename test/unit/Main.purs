@@ -33,8 +33,9 @@ main = runTest $ do
   suite "TPay" $ do
     let
       amount = unsafePartial (fromJust $ Decimal.fromString "17.1")
-      request = defaultRequest { id: "12", amount, description: "asdf" }
-      expectedUrl = "https://secure.tpay.com?accept_tos&address&amount=17.1&city&country&crc&custom_description&description=asdf&email&expiration_date&group&id=12&language&md5sum=03e6e117f7fdf42e09c47bfc089ed829&merchant_description&name&online&phone&result_email&result_url&return_error_url&return_url&timehash&zip"
+      request = defaultRequest { id: "12", amount, description: "asdf something" }
+      expectedUrl = "https://secure.tpay.com?accept_tos&address&amount=17.1&city&country&crc&custom_description&description=asdf%20something&email&expiration_date&group&id=12&language&md5sum=03e6e117f7fdf42e09c47bfc089ed829&merchant_description&name&online&phone&result_email&result_url&return_error_url&return_url&timehash&zip"
     test "simple post body" $ do
       url ← liftEffect $ TPay.getUrl { code: "", request }
       equal expectedUrl url
+
