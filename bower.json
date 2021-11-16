@@ -14,7 +14,7 @@
     "purescript-typelevel-prelude": "^3.0.0",
     "purescript-record-fold": "mbuszka/purescript-record-fold#master",
     "purescript-form-urlencoded": "^4.0.1",
-    "purescript-polyform-validators": "lambdaterms/purescript-polyform-validators#polyform-redesign",
+    "purescript-polyform-validators": "polyform/batteries-core#polyform-redesign",
     "purescript-decimals": "^4.0.0"
   },
   "devDependencies": {
